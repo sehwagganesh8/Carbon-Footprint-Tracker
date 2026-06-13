@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Remix: EcoTrack",
+  "description": "An interactive, gamified carbon footprint tracker and calculator with personalized AI insights to help you live a more eco-friendly life.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
