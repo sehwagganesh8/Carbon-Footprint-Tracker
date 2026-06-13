@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Leaf, BarChart3, CheckSquare, RotateCcw, Award, Globe, Heart } from "lucide-react";
 import OnboardingCalculator from "./components/OnboardingCalculator";
@@ -26,46 +26,12 @@ export default function App() {
   const [customHabits, setCustomHabits] = useState<HabitTask[]>([]);
   const [activeTab, setActiveTab] = useState<"dashboard" | "habits">("dashboard");
 
-  // Load state from LocalStorage on mount
-  useEffect(() => {
-    try {
-      const storedBaseline = localStorage.getItem("ecotrack_baseline");
-      const storedPoints = localStorage.getItem("ecotrack_green_points");
-      const storedSavedCo2 = localStorage.getItem("ecotrack_saved_co2");
-      const storedCompletedList = localStorage.getItem("ecotrack_completed_list");
-      const storedCustomHabits = localStorage.getItem("ecotrack_custom_habits");
-
-      if (storedBaseline) {
-        setBaseline(JSON.parse(storedBaseline));
-        setHasOnboarded(true);
-      }
-      if (storedPoints) {
-        setGreenPoints(parseInt(storedPoints, 10));
-      }
-      if (storedSavedCo2) {
-        setSavedCo2(parseFloat(storedSavedCo2));
-      }
-      if (storedCompletedList) {
-        setCompletedTodayList(JSON.parse(storedCompletedList));
-      }
-      if (storedCustomHabits) {
-        setCustomHabits(JSON.parse(storedCustomHabits));
-      }
-    } catch (err) {
-      console.error("Error reading from localstorage:", err);
-    }
-  }, []);
-
   const handleOnboardingComplete = (data: CalculatedResults) => {
-    localStorage.setItem("ecotrack_baseline", JSON.stringify(data));
     setBaseline(data);
     setHasOnboarded(true);
     setGreenPoints(0);
     setSavedCo2(0);
     setCompletedTodayList([]);
-    localStorage.setItem("ecotrack_green_points", "0");
-    localStorage.setItem("ecotrack_saved_co2", "0");
-    localStorage.setItem("ecotrack_completed_list", JSON.stringify([]));
   };
 
   const handleToggleHabit = (habitId: string, isChecking: boolean, co2Saved: number, points: number) => {
@@ -90,16 +56,11 @@ export default function App() {
     // round to 1 decimal place to prevent floating point inaccuracy
     const roundedCo2 = Math.round(newSavedCo2Count * 10) / 10;
     setSavedCo2(roundedCo2);
-
-    localStorage.setItem("ecotrack_completed_list", JSON.stringify(newList));
-    localStorage.setItem("ecotrack_green_points", newPointsCount.toString());
-    localStorage.setItem("ecotrack_saved_co2", roundedCo2.toString());
   };
 
   const handleAddCustomHabit = (newHabit: HabitTask) => {
     const nextCustomList = [newHabit, ...customHabits];
     setCustomHabits(nextCustomList);
-    localStorage.setItem("ecotrack_custom_habits", JSON.stringify(nextCustomList));
   };
 
   const handleRemoveCustomHabit = (id: string) => {
@@ -120,25 +81,15 @@ export default function App() {
         setCompletedTodayList(updatedCompletedTodayList);
         setGreenPoints(updatedPoints);
         setSavedCo2(updatedSavedCo2);
-
-        localStorage.setItem("ecotrack_completed_list", JSON.stringify(updatedCompletedTodayList));
-        localStorage.setItem("ecotrack_green_points", updatedPoints.toString());
-        localStorage.setItem("ecotrack_saved_co2", updatedSavedCo2.toString());
       }
     }
 
     const nextCustomList = customHabits.filter((t) => t.id !== id);
     setCustomHabits(nextCustomList);
-    localStorage.setItem("ecotrack_custom_habits", JSON.stringify(nextCustomList));
   };
 
   const handleResetBaseline = () => {
     if (window.confirm("Are you sure you want to discard your carbon profile? This will reset all your tracked points and custom habits.")) {
-      localStorage.removeItem("ecotrack_baseline");
-      localStorage.removeItem("ecotrack_green_points");
-      localStorage.removeItem("ecotrack_saved_co2");
-      localStorage.removeItem("ecotrack_completed_list");
-      localStorage.removeItem("ecotrack_custom_habits");
       setBaseline(null);
       setHasOnboarded(false);
       setGreenPoints(0);
@@ -170,21 +121,31 @@ export default function App() {
           </div>
 
           {hasOnboarded && baseline && (
-            <div id="quick-hud-metrics" className="hidden sm:flex items-center gap-4">
-              <div className="text-right">
+            <div id="quick-hud-metrics" className="flex items-center gap-4">
+              <div className="hidden sm:flex text-right flex-col">
                 <span className="text-[10px] text-stone-400 block font-medium">Green Points Balance</span>
                 <span className="text-sm font-bold font-mono text-amber-700 tracking-tight flex items-center gap-1 justify-end">
                   <Award className="w-4 h-4 text-amber-600 shrink-0" />
                   {greenPoints} pts
                 </span>
               </div>
-              <div className="h-8 w-1 bg-stone-200" />
-              <div className="text-right">
+              <div className="hidden sm:block h-8 w-px bg-stone-200" />
+              <div className="hidden sm:flex text-right flex-col">
                 <span className="text-[10px] text-stone-400 block font-medium">Monthly Offset</span>
                 <span className="text-sm font-bold font-mono text-emerald-800">
                   -{savedCo2} kg CO2
                 </span>
               </div>
+              <div className="hidden sm:block h-8 w-px bg-stone-200" />
+              <button
+                id="header-reset-btn"
+                onClick={handleResetBaseline}
+                className="px-3 py-1.5 text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                title="Reset calculator and start over"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-stone-500" />
+                Reset App
+              </button>
             </div>
           )}
         </div>
