@@ -1,6 +1,6 @@
 # EcoTrack 🌿 — Carbon Footprint Awareness Platform
 
-### 🚀 [Live Deployment Link](https://ais-pre-g7n3vkgc3oueqjtwbfykfs-486125899951.asia-southeast1.run.app)
+### 🚀 [Live Deployment Link](https://carbon-footprint-tracker-h526.vercel.app/)
 
 **EcoTrack** is an interactive, gamified carbon footprint calculator and tracker designed to help users understand, measure, and systematically reduce their daily greenhouse gas emissions. By combining a precision calculator, visually engaging dashboards, interactive habit logging, and customizable Gemini-powered AI recommendations, EcoTrack transforms climate consciousness into a rewarding daily practice.
 
