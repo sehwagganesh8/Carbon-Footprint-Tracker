@@ -173,7 +173,7 @@ export default function App() {
             <div id="quick-hud-metrics" className="hidden sm:flex items-center gap-4">
               <div className="text-right">
                 <span className="text-[10px] text-stone-400 block font-medium">Green Points Balance</span>
-                <span className="text-sm font-bold font-mono text-amber-70 track-tight flex items-center gap-1 justify-end">
+                <span className="text-sm font-bold font-mono text-amber-700 tracking-tight flex items-center gap-1 justify-end">
                   <Award className="w-4 h-4 text-amber-600 shrink-0" />
                   {greenPoints} pts
                 </span>
@@ -206,7 +206,7 @@ export default function App() {
               className="flex-1 flex flex-col justify-center items-center py-6"
             >
               <div className="text-center max-w-xl mx-auto mb-8 space-y-4">
-                <div className="inline-flex items-center gap-1.5 text-xs text-emerald-800 font-bold uppercase tracking-wider bg-emerald-51 px-3 py-1 rounded-full border border-emerald-100">
+                <div className="inline-flex items-center gap-1.5 text-xs text-emerald-800 font-bold uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
                   <Globe className="w-3.5 h-3.5 text-emerald-700 animate-spin" />
                   Eco-friendly Hackathon MVP
                 </div>

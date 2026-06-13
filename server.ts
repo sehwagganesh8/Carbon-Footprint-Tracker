@@ -16,14 +16,21 @@ async function startServer() {
   // API endpoints
   app.post("/api/insights", async (req, res) => {
     try {
-      const { answers, emissions } = req.body;
+      const { answers = {}, emissions = {} } = req.body;
 
-      if (!answers || !emissions) {
-        return res.status(400).json({ error: "Missing required inputs (answers or emissions)" });
-      }
+      // Extract details, supplying graceful defaults to eliminate crashes
+      const transport = emissions.transport ?? emissions.mobility ?? 0;
+      const diet = emissions.diet ?? emissions.nutrition ?? 0;
+      const energy = emissions.energy ?? emissions.homeEnergy ?? 0;
+      const total = emissions.total ?? (transport + diet + energy);
 
-      const { transportType, distance, dietType, electricity, heatingType } = answers;
-      const { transport, diet, energy, total } = emissions;
+      const transportType = answers.transportType ?? "petrol";
+      const distance = answers.distance ?? 600;
+      const dietType = answers.dietType ?? "moderate_meat";
+      const electricity = answers.electricity ?? 200;
+      const heatingType = answers.heatingType ?? "gas";
+
+      console.log("[API/Insights] Calculating profile baseline: ", { transport, diet, energy, total, transportType });
 
       // Determine highest category
       let highestCategory = "Transportation";
@@ -64,7 +71,7 @@ async function startServer() {
         }
       ];
 
-      if (!apiKey || apiKey === "MY_GEMINI_API_KEY") {
+      if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey.trim() === "") {
         console.warn("GEMINI_API_KEY not configured or using default placeholder. Serving intelligent fallback insights.");
         return res.json({ tips: fallbackTips });
       }

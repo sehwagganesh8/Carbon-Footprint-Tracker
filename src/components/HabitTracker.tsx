@@ -123,14 +123,14 @@ export default function HabitTracker({
         <div>
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h3 className="text-base font-bold text-stone-850">Daily Green Habits</h3>
+              <h3 className="text-base font-bold text-stone-800">Daily Green Habits</h3>
               <p className="text-xs text-stone-400">Complete tasks to deduct live weight from your baseline carbon footprint.</p>
             </div>
 
             <button
               id="add-custom-habit-trigger"
               onClick={() => setShowAddForm(!showAddForm)}
-              className="px-3 py-1.5 text-xs font-semibold bg-emerald-58 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+              className="px-3 py-1.5 text-xs font-semibold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               Custom Habit
@@ -167,7 +167,7 @@ export default function HabitTracker({
                       id="select-custom-category"
                       value={newCategory}
                       onChange={(e) => setNewCategory(e.target.value as any)}
-                      className="w-full text-xs px-2.5 py-1.5 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 text-stone-850"
+                      className="w-full text-xs px-2.5 py-1.5 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 text-stone-800"
                     >
                       <option value="Transportation">Transportation 🚗</option>
                       <option value="Diet">Diet 🥗</option>
@@ -238,7 +238,7 @@ export default function HabitTracker({
                     <div className="text-left">
                       <div className="flex items-center gap-1.5">
                         <IconComp className={`w-3.5 h-3.5 ${isChecked ? "text-emerald-700" : "text-stone-400"}`} />
-                        <p className={`text-xs font-semibold ${isChecked ? "line-through text-stone-500 font-medium" : "text-stone-850"}`}>
+                        <p className={`text-xs font-semibold ${isChecked ? "line-through text-stone-500 font-medium" : "text-stone-800"}`}>
                           {item.title}
                         </p>
                       </div>
