@@ -21,7 +21,11 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
+    - name: Install dependencies with native binary support
+      run: |
+        npm cache clean --force
+        rm -rf node_modules package-lock.json
+        npm install
     - run: npm run lint
     - run: npm run build
     - run: npm test -- --coverage
