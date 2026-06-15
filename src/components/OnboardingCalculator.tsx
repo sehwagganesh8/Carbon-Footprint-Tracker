@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Car, Flame, Bolt, Salad, ArrowRight, ArrowLeft, Leaf } from "lucide-react";
+import { AnimatePresence } from "motion/react";
+import { ArrowRight, ArrowLeft, Leaf } from "lucide-react";
 import { CalculatedResults } from "../types";
 import { calculateFootprint } from "../utils/carbonUtils";
+import { MobilityStep } from "./ui/MobilityStep";
+import { DietStep } from "./ui/DietStep";
+import { EnergyStep } from "./ui/EnergyStep";
 
 interface CalculatorProps {
   onComplete: (data: CalculatedResults) => void;
@@ -116,216 +119,25 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
       <div id="calculator-step-body" className="p-6 md:p-8 min-h-[360px] bg-white">
         <AnimatePresence mode="wait">
           {step === 1 && (
-            <motion.fieldset
-              key="step-1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.25 }}
-              className="space-y-6 block border-0 p-0 m-0"
-            >
-              <legend className="flex items-center gap-2.5 mb-2 w-full">
-                <Car className="w-5 h-5 text-emerald-700" aria-hidden="true" />
-                <h3 className="text-base font-semibold text-stone-900">1. Select Commute Vehicle</h3>
-              </legend>
-              <p className="text-xs text-stone-500 leading-relaxed">
-                Mobility emissions depend on engine efficiency and distance traveled. Tell us which transport gets you around.
-              </p>
-
-              <div id="transport-options" className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {[
-                  { id: "petrol", label: "Petrol Car", desc: "Regular gasoline motor" },
-                  { id: "diesel", label: "Diesel Car", desc: "Averaging higher torque, high emissions" },
-                  { id: "hybrid", label: "Hybrid", desc: "Fuel-electric combination efficiency" },
-                  { id: "electric", label: "Electric Car", desc: "Eco friendly, charged on grid mix" },
-                  { id: "public", label: "Public Transit", desc: "City bus, trains and subways" },
-                  { id: "bike_walk", label: "Active Mode", desc: "Walking, cycling, or green scooter" }
-                ].map((item) => {
-                  const isSelected = transportType === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      id={`transport-option-btn-${item.id}`}
-                      type="button"
-                      onClick={() => setTransportType(item.id)}
-                      aria-pressed={isSelected}
-                      className={`p-3.5 text-left rounded-xl border transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-600 ${
-                        isSelected
-                          ? "bg-emerald-50 border-emerald-600 text-emerald-950 font-medium"
-                          : "bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100/50 hover:border-stone-300"
-                      }`}
-                    >
-                      <p className="text-sm font-semibold text-emerald-950">{item.label}</p>
-                      <p className="text-[11px] text-stone-550 leading-tight mt-1">{item.desc}</p>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="pt-4 border-t border-stone-100">
-                <div className="flex justify-between items-center mb-2">
-                  <label htmlFor="distance-slider" className="text-xs font-semibold text-stone-700">Estimated Monthly Distance Commuted</label>
-                  <span className="text-sm font-bold font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-100" aria-hidden="true">
-                    {distance} km
-                  </span>
-                </div>
-                <input
-                  id="distance-slider"
-                  type="range"
-                  min="0"
-                  max="3500"
-                  step="50"
-                  value={distance}
-                  onChange={(e) => setDistance(parseFloat(e.target.value))}
-                  className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700 focus:outline-none"
-                  aria-valuemin={0}
-                  aria-valuemax={3500}
-                  aria-valuenow={distance}
-                />
-                <div className="flex justify-between text-[11px] text-stone-400 mt-1 font-mono" aria-hidden="true">
-                  <span>0 km</span>
-                  <span>1,500 km</span>
-                  <span>3,500+ km</span>
-                </div>
-              </div>
-            </motion.fieldset>
+            <MobilityStep
+              transportType={transportType}
+              setTransportType={setTransportType}
+              distance={distance}
+              setDistance={setDistance}
+            />
           )}
 
           {step === 2 && (
-            <motion.fieldset
-              key="step-2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.25 }}
-              className="space-y-5 block border-0 p-0 m-0"
-            >
-              <legend className="flex items-center gap-2.5 mb-2 w-full">
-                <Salad className="w-5 h-5 text-emerald-700" aria-hidden="true" />
-                <h3 className="text-base font-semibold text-stone-900">2. Define Dietary Preference</h3>
-              </legend>
-              <p className="text-xs text-stone-500 leading-relaxed">
-                Agriculture contributes significantly to global greenhouse outputs. Choose a profile representing your nutritional routines:
-              </p>
-
-              <div id="dietary-options" className="space-y-2.5">
-                {[
-                  { id: "heavy_meat", label: "Frequent Meat (High Impact)", desc: "Beef, pork, or lamb is featured in almost every daily meal.", factorText: "~280 kg CO2/month" },
-                  { id: "moderate_meat", label: "Moderate Meat (Average)", desc: "Eat poultry, pork or mixed meats on alternating days.", factorText: "~190 kg CO2/month" },
-                  { id: "low_meat", label: "Low Meat / Flexitarian", desc: "Meals are pre-eminently plant-based with infrequent meat.", factorText: "~120 kg CO2/month" },
-                  { id: "vegetarian", label: "Lacto-Ovo Vegetarian", desc: "No poultry or red meats. Consumes eggs, milk products, and cheeses.", factorText: "~85 kg CO2/month" },
-                  { id: "vegan", label: "Plant-Based (Vegan)", desc: "Zero animal intake. Relies entirely on grains, legumes, and produce.", factorText: "~50 kg CO2/month" }
-                ].map((option) => {
-                  const isSelected = dietType === option.id;
-                  return (
-                    <button
-                      key={option.id}
-                      id={`diet-option-btn-${option.id}`}
-                      type="button"
-                      onClick={() => setDietType(option.id)}
-                      aria-pressed={isSelected}
-                      className={`w-full p-3.5 text-left rounded-xl border flex justify-between items-center transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-600 ${
-                        isSelected
-                          ? "bg-emerald-55 border-emerald-600 text-emerald-950 font-medium"
-                          : "bg-stone-50 border-stone-200 text-stone-705 hover:bg-stone-100/50 hover:border-stone-300"
-                      }`}
-                    >
-                      <div className="max-w-[70%] text-left">
-                        <p className="text-sm font-semibold text-emerald-950">{option.label}</p>
-                        <p className="text-xs text-stone-500 mt-0.5 leading-snug">{option.desc}</p>
-                      </div>
-                      <span className={`text-[11px] font-mono font-bold px-2.5 py-1 rounded ${
-                        isSelected ? "bg-emerald-250 text-emerald-800" : "bg-stone-200/50 text-stone-600"
-                      }`} aria-hidden="true">
-                        {option.factorText}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.fieldset>
+            <DietStep dietType={dietType} setDietType={setDietType} />
           )}
 
           {step === 3 && (
-            <motion.fieldset
-              key="step-3"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.25 }}
-              className="space-y-6 block border-0 p-0 m-0"
-            >
-              <legend className="flex items-center gap-2.5 mb-2 w-full">
-                <Flame className="w-5 h-5 text-emerald-700" aria-hidden="true" />
-                <h3 className="text-base font-semibold text-stone-900">3. Household Power & Thermal Heating</h3>
-              </legend>
-              <p className="text-xs text-stone-500 leading-relaxed font-sans">
-                Residential lighting, power lines, heating, and cooling system efficiency drive secondary electricity carbon scores.
-              </p>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <Bolt className="w-4 h-4 text-emerald-600" aria-hidden="true" />
-                    <label htmlFor="electricity-slider" className="text-xs font-semibold text-stone-705">Average Monthly Electric Bill</label>
-                  </div>
-                  <span className="text-sm font-bold font-mono text-emerald-700 bg-emerald-55 px-2.5 py-1 rounded border border-emerald-100" aria-hidden="true">
-                    {electricity} kWh
-                  </span>
-                </div>
-                <input
-                  id="electricity-slider"
-                  type="range"
-                  min="0"
-                  max="800"
-                  step="20"
-                  value={electricity}
-                  onChange={(e) => setElectricity(parseFloat(e.target.value))}
-                  className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700 focus:outline-none"
-                  aria-valuemin={0}
-                  aria-valuemax={800}
-                  aria-valuenow={electricity}
-                />
-                <div className="flex justify-between text-[11px] text-stone-400 mt-1 font-mono" aria-hidden="true">
-                  <span>0 kWh (Net Zero/Solar)</span>
-                  <span>400 kWh</span>
-                  <span>800+ kWh (Large Household)</span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-stone-100" role="group" aria-labelledby="heating-label">
-                <h4 id="heating-label" className="block text-xs font-semibold text-stone-705 mb-2.5">
-                  How is your home primarily heated?
-                </h4>
-                <div id="heating-options" className="grid grid-cols-2 gap-3">
-                  {[
-                    { id: "gas", label: "Natural Gas", desc: "Boiler burner heating" },
-                    { id: "electric", label: "Electric/Heat Pump", desc: "Thermodynamic heat transfers" },
-                    { id: "biomass", label: "Biomass / Pellet", desc: "Raw wood or thermal pellets" },
-                    { id: "none", label: "No Heating", desc: "Mild climates / zero thermal heating" }
-                  ].map((option) => {
-                    const isSelected = heatingType === option.id;
-                    return (
-                      <button
-                        key={option.id}
-                        id={`heating-option-btn-${option.id}`}
-                        type="button"
-                        onClick={() => setHeatingType(option.id)}
-                        aria-pressed={isSelected}
-                        className={`p-3 text-left rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 ${
-                          isSelected
-                            ? "bg-emerald-50 border-emerald-600 text-emerald-950 font-medium"
-                            : "bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100/50 hover:border-stone-300"
-                        }`}
-                      >
-                        <p className="text-sm font-semibold text-emerald-950">{option.label}</p>
-                        <p className="text-[11px] text-stone-500 mt-0.5 leading-tight">{option.desc}</p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </motion.fieldset>
+            <EnergyStep
+              electricity={electricity}
+              setElectricity={setElectricity}
+              heatingType={heatingType}
+              setHeatingType={setHeatingType}
+            />
           )}
         </AnimatePresence>
       </div>
