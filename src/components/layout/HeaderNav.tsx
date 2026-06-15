@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Leaf, RotateCcw, Award } from "lucide-react";
 import { CalculatedResults } from "../../types";

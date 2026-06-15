@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Leaf, BarChart3, CheckSquare, RotateCcw, Award, Globe, Heart } from "lucide-react";

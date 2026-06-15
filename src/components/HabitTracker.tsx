@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Check, Plus, Trash2, Award, Zap, Shield, Sparkles, Bike, Salad, Flame } from "lucide-react";

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Sparkles, RefreshCw, AlertCircle, Calendar } from "lucide-react";

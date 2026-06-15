@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { BarChart3, CheckSquare } from "lucide-react";
 import { CalculatedResults } from "../../types";
