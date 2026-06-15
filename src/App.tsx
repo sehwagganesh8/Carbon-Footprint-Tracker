@@ -1,17 +1,15 @@
-import React, { useState, Suspense, lazy, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Leaf, BarChart3, CheckSquare, RotateCcw, Award, Globe, Heart } from "lucide-react";
-import { ErrorBoundary } from "./components/ErrorBoundary";
 import { CalculatedResults, HabitTask } from "./types";
 import { HeaderNav } from "./components/layout/HeaderNav";
 import { OnboardingHero } from "./components/layout/OnboardingHero";
 import { DashboardHeader } from "./components/layout/DashboardHeader";
 import { AppFooter } from "./components/layout/AppFooter";
-
-const OnboardingCalculator = lazy(() => import("./components/OnboardingCalculator"));
-const DashboardOverview = lazy(() => import("./components/DashboardOverview"));
-const HabitTracker = lazy(() => import("./components/HabitTracker"));
-const InsightsEngine = lazy(() => import("./components/InsightsEngine"));
+import OnboardingCalculator from "./components/OnboardingCalculator";
+import DashboardOverview from "./components/DashboardOverview";
+import HabitTracker from "./components/HabitTracker";
+import InsightsEngine from "./components/InsightsEngine";
 
 const STATIC_HABITS: HabitTask[] = [
   { id: "habit_1", title: "Eat all plant-based meals today", category: "Diet", co2Savings: 6.5, points: 25, completedToday: false, frequency: "daily" },
@@ -93,8 +91,7 @@ export default function App() {
   const allHabits = useMemo(() => [...STATIC_HABITS, ...customHabits], [customHabits]);
 
   return (
-    <ErrorBoundary>
-      <div className="min-h-screen bg-stone-100 flex flex-col font-sans transition-all">
+    <div className="min-h-screen bg-stone-100 flex flex-col font-sans transition-all">
       
       {/* Platform Navigation Header */}
       <HeaderNav
@@ -138,7 +135,6 @@ export default function App() {
 
               {/* Segment slots */}
               <div id="dynamic-tab-outlet" className="space-y-8">
-                <Suspense fallback={<div className="p-12 text-center text-stone-400">Loading module...</div>}>
                   {activeTab === "dashboard" && (
                     <div id="panel-dashboard" role="tabpanel" aria-labelledby="tab-btn-dashboard" tabIndex={0}>
                       {/* Visual graph and progress markers */}
@@ -161,7 +157,6 @@ export default function App() {
                       />
                     </div>
                   )}
-                </Suspense>
               </div>
 
               {/* Bottom reset actions rail */}
@@ -184,6 +179,5 @@ export default function App() {
       {/* Small Humble footer with no margin clutter */}
       <AppFooter />
     </div>
-    </ErrorBoundary>
   );
 }

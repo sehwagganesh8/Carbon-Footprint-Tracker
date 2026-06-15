@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { motion } from "motion/react";
 import { Globe } from "lucide-react";
 
@@ -32,9 +32,7 @@ export function OnboardingHero({ handleOnboardingComplete, OnboardingCalculator 
       </header>
 
       {/* Onboarding Wizard element */}
-      <Suspense fallback={<div className="p-8 text-center text-sm text-stone-500">Loading calculator...</div>}>
-        <OnboardingCalculator onComplete={handleOnboardingComplete} />
-      </Suspense>
+      <OnboardingCalculator onComplete={handleOnboardingComplete} />
     </motion.section>
   );
 }
