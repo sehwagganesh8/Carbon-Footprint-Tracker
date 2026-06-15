@@ -32,13 +32,13 @@ export default function DashboardOverview({ baseline, savedCo2 }: DashboardOverv
     <div id="dashboard-overview-layout" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       {/* Primary Highlights Section */}
-      <div id="carbon-summary-card" className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-6 shadow-md flex flex-col justify-between">
-        <div className="flex justify-between items-start mb-6">
+      <section id="carbon-summary-card" aria-labelledby="metrics-title" className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-6 shadow-md flex flex-col justify-between">
+        <header className="flex justify-between items-start mb-6">
           <div>
             <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wider">
               Carbon footprint
             </span>
-            <h3 className="text-xl font-bold font-serif text-stone-900 mt-2">Emission Metrics</h3>
+            <h3 id="metrics-title" className="text-xl font-bold font-serif text-stone-900 mt-2">Emission Metrics</h3>
           </div>
           <div className="text-right">
             <p className="text-xs text-stone-400">Status</p>
@@ -52,10 +52,10 @@ export default function DashboardOverview({ baseline, savedCo2 }: DashboardOverv
               {currentEmissions < globalAverage ? "Sustainable-Leader" : currentEmissions < usAverage ? "Moderate" : "High Intensity"}
             </span>
           </div>
-        </div>
+        </header>
 
         {/* Big Numbers Display */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4 my-2 border-y border-stone-100">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4 my-2 border-y border-stone-100" role="region" aria-label="Quick statistics">
           <div id="stat-baseline" className="p-4 bg-stone-50 rounded-xl border border-stone-200/60">
             <p className="text-xs text-stone-500 font-medium">Initial Baseline</p>
             <p className="text-2xl font-black text-stone-800 font-mono mt-1">
@@ -65,7 +65,7 @@ export default function DashboardOverview({ baseline, savedCo2 }: DashboardOverv
           <div id="stat-savings" className="p-4 bg-emerald-50 rounded-xl border border-emerald-100 flex flex-col justify-between">
             <div>
               <p className="text-xs text-emerald-800 font-medium flex items-center gap-1">
-                <TrendingDown className="w-3.5 h-3.5" />
+                <TrendingDown className="w-3.5 h-3.5" aria-hidden="true" />
                 Active Savings
               </p>
               <p className="text-2xl font-black text-emerald-900 font-mono mt-1">
@@ -87,15 +87,15 @@ export default function DashboardOverview({ baseline, savedCo2 }: DashboardOverv
         </div>
 
         {/* Dynamic Global Comparison slider chart */}
-        <div id="comparative-benchmarks" className="space-y-4 pt-4">
+        <div id="comparative-benchmarks" className="space-y-4 pt-4" aria-labelledby="benchmarks-label">
           <div className="flex items-center justify-between text-xs font-medium text-stone-700">
-            <span className="flex items-center gap-1">
-              <Globe className="w-3.5 h-3.5 text-stone-500" />
+            <span id="benchmarks-label" className="flex items-center gap-1">
+              <Globe className="w-3.5 h-3.5 text-stone-500" aria-hidden="true" />
               Comparative Benchmarks (kg CO2 per month)
             </span>
           </div>
 
-          <div className="relative pt-2 pb-6">
+          <div className="relative pt-2 pb-6" aria-hidden="true">
             {/* Horizontal Track bar */}
             <div className="absolute top-2.5 left-0 right-0 h-2 bg-stone-200 rounded-full" />
 
@@ -130,29 +130,29 @@ export default function DashboardOverview({ baseline, savedCo2 }: DashboardOverv
           </div>
 
           <p className="text-xs text-stone-500 mt-2 leading-relaxed pt-3 flex items-start gap-1.5 bg-stone-50 p-2.5 rounded-lg border border-stone-200/50">
-            <Info className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+            <Info className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" aria-hidden="true" />
             <span>
-              Your current profile outputs <strong>{usComparison}%</strong> of the average US citizen's baseline footprint. 
+              Your current profile outputs <strong aria-label={`${usComparison} percent`}>{usComparison}%</strong> of the average US citizen's baseline footprint. 
               {currentEmissions <= globalAverage ? " Excellent job! You are below the sustainable threshold." : " Leverage the tracker habits to step closer to the sustainable target limit of 180 kg CO2/mo."}
             </span>
           </p>
         </div>
-      </div>
+      </section>
 
       {/* Pie Chart Section */}
-      <div id="categories-chart-card" className="bg-white rounded-2xl border border-stone-200 p-6 shadow-md flex flex-col justify-between">
-        <div>
+      <section id="categories-chart-card" aria-labelledby="breakdown-title" className="bg-white rounded-2xl border border-stone-200 p-6 shadow-md flex flex-col justify-between">
+        <header>
           <span className="text-xs font-bold text-sky-800 bg-sky-50 px-2.5 py-1 rounded-full uppercase tracking-wider">
             Contribution
           </span>
-          <h3 className="text-xl font-bold font-serif text-stone-900 mt-2 mb-3">Emission Breakdown</h3>
+          <h3 id="breakdown-title" className="text-xl font-bold font-serif text-stone-900 mt-2 mb-3">Emission Breakdown</h3>
           <p className="text-xs text-stone-500">
             Visual breakdown of your monthly carbon output by category based on your baseline.
           </p>
-        </div>
+        </header>
 
         {/* Chart rendering container */}
-        <div className="h-44 my-4 flex items-center justify-center">
+        <div className="h-44 my-4 flex items-center justify-center" aria-hidden="true">
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -184,13 +184,13 @@ export default function DashboardOverview({ baseline, savedCo2 }: DashboardOverv
         </div>
 
         {/* Customized Legend Grid */}
-        <div className="space-y-2 border-t border-stone-100 pt-4">
+        <div className="space-y-2 border-t border-stone-100 pt-4" aria-label="Breakdown values">
           {chartData.map((item, index) => {
             const percentage = Math.round((item.value / baseline.total) * 100);
             return (
               <div key={index} className="flex justify-between items-center text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} aria-hidden="true" />
                   <span className="text-stone-700 font-medium">{item.name}</span>
                 </div>
                 <div className="text-right font-mono font-bold text-stone-800 flex gap-2">
@@ -201,7 +201,7 @@ export default function DashboardOverview({ baseline, savedCo2 }: DashboardOverv
             );
           })}
         </div>
-      </div>
+      </section>
 
     </div>
   );

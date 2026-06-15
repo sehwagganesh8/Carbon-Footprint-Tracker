@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Car, Flame, Bolt, Salad, ArrowRight, ArrowLeft, Leaf } from "lucide-react";
 import { CalculatedResults } from "../types";
+import { calculateFootprint } from "../utils/carbonUtils";
 
 interface CalculatorProps {
   onComplete: (data: CalculatedResults) => void;
@@ -17,62 +18,17 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
   const [electricity, setElectricity] = useState<number>(200); // kWh per month
   const [heatingType, setHeatingType] = useState<string>("gas");
 
-  const calculateFootprint = (): CalculatedResults => {
-    // 1. Transportation Calculation (kg CO2 per km)
-    const transportFactors: Record<string, number> = {
-      petrol: 0.192,
-      diesel: 0.171,
-      hybrid: 0.104,
-      electric: 0.045, // grid average loading
-      public: 0.035,   // generic bus/train combo
-      bike_walk: 0.00
-    };
-    const transportEmissions = Math.round(distance * (transportFactors[transportType] ?? 0.192));
-
-    // 2. Diet Calculation (Monthly averages in kg CO2)
-    const dietFactors: Record<string, number> = {
-      heavy_meat: 280,     // Heavy beef / lamb consumption
-      moderate_meat: 190,  // Mixed poultry, pork, low beef
-      low_meat: 120,       // Mostly vegan/vegetarian with occasional chicken or fish
-      vegetarian: 85,      // Dairy and eggs, no flesh
-      vegan: 50            // Direct plant pipeline
-    };
-    const dietEmissions = dietFactors[dietType] ?? 190;
-
-    // 3. Home Energy Calculation (Monthly kg CO2)
-    const electricityFactor = 0.35; // average grid index per kWh
-    const heatingFlatRates: Record<string, number> = {
-      gas: 140,
-      electric: 80,
-      biomass: 35,
-      none: 0
-    };
-    const electricityEmissions = Math.round(electricity * electricityFactor);
-    const heatingEmissions = heatingFlatRates[heatingType] ?? 140;
-    const energyEmissions = electricityEmissions + heatingEmissions;
-
-    const total = transportEmissions + dietEmissions + energyEmissions;
-
-    return {
-      transport: transportEmissions,
-      diet: dietEmissions,
-      energy: energyEmissions,
-      total,
-      answers: {
+  const handleNext = () => {
+    if (step < 3) {
+      setStep((prev) => (prev + 1) as 1 | 2 | 3);
+    } else {
+      const results = calculateFootprint({
         transportType,
         distance,
         dietType,
         electricity,
         heatingType
-      }
-    };
-  };
-
-  const handleNext = () => {
-    if (step < 3) {
-      setStep((prev) => (prev + 1) as 1 | 2 | 3);
-    } else {
-      const results = calculateFootprint();
+      });
       onComplete(results);
     }
   };
@@ -97,26 +53,26 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
   ];
 
   return (
-    <div id="calculator-onboarding-container" className="w-full max-w-2xl mx-auto bg-stone-50 rounded-2xl border border-stone-200 shadow-xl overflow-hidden self-center my-6">
+    <section id="calculator-onboarding-container" aria-labelledby="calculator-title" className="w-full max-w-2xl mx-auto bg-stone-50 rounded-2xl border border-stone-200 shadow-xl overflow-hidden self-center my-6">
       {/* Structural Earth Header */}
-      <div id="calculator-header" className="p-6 md:p-8 bg-emerald-950 text-stone-100 flex flex-col justify-between border-b border-stone-200">
+      <header id="calculator-header" className="p-6 md:p-8 bg-emerald-950 text-stone-100 flex flex-col justify-between border-b border-stone-200">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-800 text-emerald-300 rounded-lg">
+            <div className="p-2 bg-emerald-800 text-emerald-300 rounded-lg" aria-hidden="true">
               <Leaf className="w-6 h-6 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-xl md:text-2xl font-semibold tracking-tight">Set up your Baseline</h1>
+              <h1 id="calculator-title" className="text-xl md:text-2xl font-semibold tracking-tight">Set up your Baseline</h1>
               <p className="text-xs text-emerald-400">Monthly calculator to construct your personalized dashboard</p>
             </div>
           </div>
-          <span className="self-start md:self-auto text-xs font-semibold py-1 px-3 rounded-full bg-emerald-800 text-emerald-300 border border-emerald-700">
+          <span className="self-start md:self-auto text-xs font-semibold py-1 px-3 rounded-full bg-emerald-800 text-emerald-300 border border-emerald-700" aria-live="polite">
             Step {step} of 3
           </span>
         </div>
 
         {/* Step dots with names */}
-        <div id="step-timeline" className="grid grid-cols-3 gap-2">
+        <nav aria-label="Calculator Progress" id="step-timeline" className="grid grid-cols-3 gap-2">
           {stepsMeta.map((s) => {
             const isActive = step === s.id;
             const isCompleted = step > s.id;
@@ -126,6 +82,7 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
                 id={`timeline-step-btn-${s.id}`}
                 onClick={() => skipToStep(s.id as 1 | 2 | 3)}
                 disabled={step <= s.id}
+                aria-current={isActive ? "step" : undefined}
                 className="text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-emerald-500 rounded disabled:cursor-not-allowed group"
               >
                 <div className="flex items-center gap-2 mb-1.5">
@@ -144,7 +101,7 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
                     {s.title}
                   </span>
                 </div>
-                <div className="w-full bg-emerald-900/50 h-1 rounded-full overflow-hidden">
+                <div className="w-full bg-emerald-900/50 h-1 rounded-full overflow-hidden" aria-hidden="true">
                   <div className={`height-full h-1 bg-emerald-500 transition-all duration-300 ${
                     isActive ? "w-1/2" : isCompleted ? "w-full" : "w-0"
                   }`} />
@@ -152,25 +109,25 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
               </button>
             );
           })}
-        </div>
-      </div>
+        </nav>
+      </header>
 
       {/* Screen Body with Framer Motion slide animation */}
       <div id="calculator-step-body" className="p-6 md:p-8 min-h-[360px] bg-white">
         <AnimatePresence mode="wait">
           {step === 1 && (
-            <motion.div
+            <motion.fieldset
               key="step-1"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.25 }}
-              className="space-y-6"
+              className="space-y-6 block border-0 p-0 m-0"
             >
-              <div className="flex items-center gap-2.5 mb-2">
-                <Car className="w-5 h-5 text-emerald-700" />
+              <legend className="flex items-center gap-2.5 mb-2 w-full">
+                <Car className="w-5 h-5 text-emerald-700" aria-hidden="true" />
                 <h3 className="text-base font-semibold text-stone-900">1. Select Commute Vehicle</h3>
-              </div>
+              </legend>
               <p className="text-xs text-stone-500 leading-relaxed">
                 Mobility emissions depend on engine efficiency and distance traveled. Tell us which transport gets you around.
               </p>
@@ -191,6 +148,7 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
                       id={`transport-option-btn-${item.id}`}
                       type="button"
                       onClick={() => setTransportType(item.id)}
+                      aria-pressed={isSelected}
                       className={`p-3.5 text-left rounded-xl border transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-600 ${
                         isSelected
                           ? "bg-emerald-50 border-emerald-600 text-emerald-950 font-medium"
@@ -206,8 +164,8 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
 
               <div className="pt-4 border-t border-stone-100">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-semibold text-stone-700">Estimated Monthly Distance Commuted</span>
-                  <span className="text-sm font-bold font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-100">
+                  <label htmlFor="distance-slider" className="text-xs font-semibold text-stone-700">Estimated Monthly Distance Commuted</label>
+                  <span className="text-sm font-bold font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-100" aria-hidden="true">
                     {distance} km
                   </span>
                 </div>
@@ -220,29 +178,32 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
                   value={distance}
                   onChange={(e) => setDistance(parseFloat(e.target.value))}
                   className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700 focus:outline-none"
+                  aria-valuemin={0}
+                  aria-valuemax={3500}
+                  aria-valuenow={distance}
                 />
-                <div className="flex justify-between text-[11px] text-stone-400 mt-1 font-mono">
+                <div className="flex justify-between text-[11px] text-stone-400 mt-1 font-mono" aria-hidden="true">
                   <span>0 km</span>
                   <span>1,500 km</span>
                   <span>3,500+ km</span>
                 </div>
               </div>
-            </motion.div>
+            </motion.fieldset>
           )}
 
           {step === 2 && (
-            <motion.div
+            <motion.fieldset
               key="step-2"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.25 }}
-              className="space-y-5"
+              className="space-y-5 block border-0 p-0 m-0"
             >
-              <div className="flex items-center gap-2.5 mb-2">
-                <Salad className="w-5 h-5 text-emerald-700" />
+              <legend className="flex items-center gap-2.5 mb-2 w-full">
+                <Salad className="w-5 h-5 text-emerald-700" aria-hidden="true" />
                 <h3 className="text-base font-semibold text-stone-900">2. Define Dietary Preference</h3>
-              </div>
+              </legend>
               <p className="text-xs text-stone-500 leading-relaxed">
                 Agriculture contributes significantly to global greenhouse outputs. Choose a profile representing your nutritional routines:
               </p>
@@ -262,6 +223,7 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
                       id={`diet-option-btn-${option.id}`}
                       type="button"
                       onClick={() => setDietType(option.id)}
+                      aria-pressed={isSelected}
                       className={`w-full p-3.5 text-left rounded-xl border flex justify-between items-center transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-600 ${
                         isSelected
                           ? "bg-emerald-55 border-emerald-600 text-emerald-950 font-medium"
@@ -274,29 +236,29 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
                       </div>
                       <span className={`text-[11px] font-mono font-bold px-2.5 py-1 rounded ${
                         isSelected ? "bg-emerald-250 text-emerald-800" : "bg-stone-200/50 text-stone-600"
-                      }`}>
+                      }`} aria-hidden="true">
                         {option.factorText}
                       </span>
                     </button>
                   );
                 })}
               </div>
-            </motion.div>
+            </motion.fieldset>
           )}
 
           {step === 3 && (
-            <motion.div
+            <motion.fieldset
               key="step-3"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.25 }}
-              className="space-y-6"
+              className="space-y-6 block border-0 p-0 m-0"
             >
-              <div className="flex items-center gap-2.5 mb-2">
-                <Flame className="w-5 h-5 text-emerald-700" />
+              <legend className="flex items-center gap-2.5 mb-2 w-full">
+                <Flame className="w-5 h-5 text-emerald-700" aria-hidden="true" />
                 <h3 className="text-base font-semibold text-stone-900">3. Household Power & Thermal Heating</h3>
-              </div>
+              </legend>
               <p className="text-xs text-stone-500 leading-relaxed font-sans">
                 Residential lighting, power lines, heating, and cooling system efficiency drive secondary electricity carbon scores.
               </p>
@@ -304,10 +266,10 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-1.5">
-                    <Bolt className="w-4 h-4 text-emerald-600" />
-                    <span className="text-xs font-semibold text-stone-705">Average Monthly Electric Bill</span>
+                    <Bolt className="w-4 h-4 text-emerald-600" aria-hidden="true" />
+                    <label htmlFor="electricity-slider" className="text-xs font-semibold text-stone-705">Average Monthly Electric Bill</label>
                   </div>
-                  <span className="text-sm font-bold font-mono text-emerald-700 bg-emerald-55 px-2.5 py-1 rounded border border-emerald-100">
+                  <span className="text-sm font-bold font-mono text-emerald-700 bg-emerald-55 px-2.5 py-1 rounded border border-emerald-100" aria-hidden="true">
                     {electricity} kWh
                   </span>
                 </div>
@@ -320,18 +282,21 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
                   value={electricity}
                   onChange={(e) => setElectricity(parseFloat(e.target.value))}
                   className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700 focus:outline-none"
+                  aria-valuemin={0}
+                  aria-valuemax={800}
+                  aria-valuenow={electricity}
                 />
-                <div className="flex justify-between text-[11px] text-stone-400 mt-1 font-mono">
+                <div className="flex justify-between text-[11px] text-stone-400 mt-1 font-mono" aria-hidden="true">
                   <span>0 kWh (Net Zero/Solar)</span>
                   <span>400 kWh</span>
                   <span>800+ kWh (Large Household)</span>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-stone-100">
-                <label className="block text-xs font-semibold text-stone-705 mb-2.5">
+              <div className="pt-4 border-t border-stone-100" role="group" aria-labelledby="heating-label">
+                <h4 id="heating-label" className="block text-xs font-semibold text-stone-705 mb-2.5">
                   How is your home primarily heated?
-                </label>
+                </h4>
                 <div id="heating-options" className="grid grid-cols-2 gap-3">
                   {[
                     { id: "gas", label: "Natural Gas", desc: "Boiler burner heating" },
@@ -346,6 +311,7 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
                         id={`heating-option-btn-${option.id}`}
                         type="button"
                         onClick={() => setHeatingType(option.id)}
+                        aria-pressed={isSelected}
                         className={`p-3 text-left rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-600 ${
                           isSelected
                             ? "bg-emerald-50 border-emerald-600 text-emerald-950 font-medium"
@@ -359,13 +325,13 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
                   })}
                 </div>
               </div>
-            </motion.div>
+            </motion.fieldset>
           )}
         </AnimatePresence>
       </div>
 
       {/* Button Controls Footer Panel */}
-      <div id="calculator-footer" className="p-5 md:p-6 bg-stone-100 border-t border-stone-200 flex justify-between items-center">
+      <footer id="calculator-footer" className="p-5 md:p-6 bg-stone-100 border-t border-stone-200 flex justify-between items-center">
         <button
           id="back-step-btn"
           type="button"
@@ -377,7 +343,7 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
               : "text-stone-700 bg-white border border-stone-305 hover:bg-stone-50"
           }`}
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
+          <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
           Back
         </button>
 
@@ -390,16 +356,16 @@ export default function OnboardingCalculator({ onComplete }: CalculatorProps) {
           {step === 3 ? (
             <>
               Let's Carbon Audit!
-              <Leaf className="w-3.5 h-3.5" />
+              <Leaf className="w-3.5 h-3.5" aria-hidden="true" />
             </>
           ) : (
             <>
               Next Step
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
             </>
           )}
         </button>
-      </div>
-    </div>
+      </footer>
+    </section>
   );
 }

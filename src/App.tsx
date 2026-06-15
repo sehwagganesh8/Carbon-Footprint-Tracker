@@ -152,50 +152,52 @@ export default function App() {
       </header>
 
       {/* Primary Main Content View container */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-start">
+      <main id="main-content" className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col justify-start">
         
         <AnimatePresence mode="wait">
           {!hasOnboarded || !baseline ? (
             
             /* Onboarding Hero Space */
-            <motion.div
+            <motion.section
               key="onboarding-space"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
               className="flex-1 flex flex-col justify-center items-center py-6"
+              aria-labelledby="onboarding-heading"
             >
-              <div className="text-center max-w-xl mx-auto mb-8 space-y-4">
+              <header className="text-center max-w-xl mx-auto mb-8 space-y-4">
                 <div className="inline-flex items-center gap-1.5 text-xs text-emerald-800 font-bold uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
-                  <Globe className="w-3.5 h-3.5 text-emerald-700 animate-spin" />
+                  <Globe className="w-3.5 h-3.5 text-emerald-700 animate-spin" aria-hidden="true" />
                   Eco-friendly Hackathon MVP
                 </div>
-                <h2 className="text-3xl md:text-4xl font-extrabold text-stone-900 font-serif tracking-tight">
+                <h2 id="onboarding-heading" className="text-3xl md:text-4xl font-extrabold text-stone-900 font-serif tracking-tight">
                   Discover Your Carbon Footprint
                 </h2>
                 <p className="text-sm text-stone-500 leading-relaxed max-w-md mx-auto">
                   Take credit for your habits. Get immediate baseline metrics representing your diet, energy, and transportation, then log actions to lower your scores.
                 </p>
-              </div>
+              </header>
 
               {/* Onboarding Wizard element */}
               <OnboardingCalculator onComplete={handleOnboardingComplete} />
-            </motion.div>
+            </motion.section>
 
           ) : (
             
             /* Main Application Dashboard Panel */
-            <motion.div
+            <motion.article
               key="active-dashboard"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35 }}
               className="space-y-8"
+              aria-label="Dashboard Overview"
             >
               {/* Header welcome slot and tab filters */}
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-stone-200 pb-5">
+              <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-stone-200 pb-5">
                 <div>
                   <h2 className="text-2xl font-black text-stone-900 font-serif tracking-tight">
                     Welcome to EcoTrack
@@ -206,9 +208,12 @@ export default function App() {
                 </div>
 
                 {/* Segmented controls styling */}
-                <div id="navigation-tabs" className="flex items-center gap-2 p-1.5 bg-stone-200/60 rounded-xl border border-stone-300/30">
+                <nav id="navigation-tabs" role="tablist" aria-label="Dashboard views" className="flex items-center gap-2 p-1.5 bg-stone-200/60 rounded-xl border border-stone-300/30">
                   <button
                     id="tab-btn-dashboard"
+                    role="tab"
+                    aria-selected={activeTab === "dashboard"}
+                    aria-controls="panel-dashboard"
                     onClick={() => setActiveTab("dashboard")}
                     className={`px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                       activeTab === "dashboard"
@@ -216,12 +221,15 @@ export default function App() {
                         : "text-stone-500 hover:text-stone-700"
                     }`}
                   >
-                    <BarChart3 className="w-3.5 h-3.5" />
+                    <BarChart3 className="w-3.5 h-3.5" aria-hidden="true" />
                     Insights Dashboard
                   </button>
 
                   <button
                     id="tab-btn-habits"
+                    role="tab"
+                    aria-selected={activeTab === "habits"}
+                    aria-controls="panel-habits"
                     onClick={() => setActiveTab("habits")}
                     className={`px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                       activeTab === "habits"
@@ -229,33 +237,35 @@ export default function App() {
                         : "text-stone-500 hover:text-stone-700"
                     }`}
                   >
-                    <CheckSquare className="w-3.5 h-3.5" />
+                    <CheckSquare className="w-3.5 h-3.5" aria-hidden="true" />
                     Action Habit Tracker
                   </button>
-                </div>
-              </div>
+                </nav>
+              </header>
 
               {/* Segment slots */}
               <div id="dynamic-tab-outlet" className="space-y-8">
                 {activeTab === "dashboard" && (
-                  <>
+                  <div id="panel-dashboard" role="tabpanel" aria-labelledby="tab-btn-dashboard" tabIndex={0}>
                     {/* Visual graph and progress markers */}
                     <DashboardOverview baseline={baseline} savedCo2={savedCo2} />
                     
                     {/* Gemini AI Action Insights card */}
                     <InsightsEngine baseline={baseline} />
-                  </>
+                  </div>
                 )}
 
                 {activeTab === "habits" && (
-                  <HabitTracker
-                    completedTodayList={completedTodayList}
-                    onToggleHabit={handleToggleHabit}
-                    onAddCustomHabit={handleAddCustomHabit}
-                    onRemoveCustomHabit={handleRemoveCustomHabit}
-                    customAndStaticHabits={allHabits}
-                    greenPoints={greenPoints}
-                  />
+                  <div id="panel-habits" role="tabpanel" aria-labelledby="tab-btn-habits" tabIndex={0}>
+                    <HabitTracker
+                      completedTodayList={completedTodayList}
+                      onToggleHabit={handleToggleHabit}
+                      onAddCustomHabit={handleAddCustomHabit}
+                      onRemoveCustomHabit={handleRemoveCustomHabit}
+                      customAndStaticHabits={allHabits}
+                      greenPoints={greenPoints}
+                    />
+                  </div>
                 )}
               </div>
 
@@ -270,7 +280,7 @@ export default function App() {
                   Discard and Reset Baseline config
                 </button>
               </div>
-            </motion.div>
+            </motion.article>
           )}
         </AnimatePresence>
 
